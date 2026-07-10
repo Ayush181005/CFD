@@ -1,0 +1,75 @@
+import numpy as np
+from matplotlib import pyplot as plt, cm
+# For animation
+from matplotlib.animation import FuncAnimation
+# from IPython.display import HTML
+
+# Variables
+l = 2
+nx = 41 # nx = ny
+dx = l/(nx-1) # dx = dy
+# nt = 500 # This time we'll use tolerance to stop the simulation, not nt
+nu = 0.01
+courant = 0.25
+dt = courant * dx**2 / nu
+tolerance = 1e-5 # threshold for convergence
+
+# Generating the mesh
+x = np.linspace(0, l, nx)
+y = np.linspace(0, l, nx)
+
+# Initialization
+u = np.ones((nx, nx))
+un = np.ones((nx, nx))
+# Intital and Boundary Condition
+u[int(.5/dx):int(1/dx+1),int(.5/dx):int(1/dx+1)]=2
+
+# Function to update the field
+def diffuse (u):
+    global dt, dx, nu
+    
+    un = u.copy()
+
+    # Discritization eqn using array slicing
+    # Not using for i in range(1, nx-1)
+    # u[1:nx-1,1:nx-1] = un[1:nx-1,1:nx-1] + (dt / dx**2) * nu * (un[2:nx,1:nx-1] + un[0:nx-2,1:nx-1] + un[1:nx-1,2:nx] + un[1:nx-1,0:nx-2] - 4*un[1:nx-1,1:nx-1])
+    u[1:-1,1:-1] = un[1:-1,1:-1] + (dt / dx**2) * nu * (un[2:,1:-1] + un[0:-2,1:-1] + un[1:-1,2:] + un[1:-1,0:-2] - 4*un[1:-1,1:-1])
+
+    u[0,:] = 1 # Bottom Boundary
+    u[-1,:] = 1 # Top Boundary
+    u[:,0] = 1 # Left Boundary
+    u[:,-1] = 1 # Right Boundary
+
+    return u
+
+# Post Processing
+
+fig, ax = plt.subplots(figsize=(8, 6))
+X, Y = np.meshgrid(x, y) # Grid
+contour = ax.contourf(X, Y, u, alpha=0.75, cmap=cm.viridis) # Intital Contour Plot
+cbar = fig.colorbar(contour)
+ax.set_xlabel('$x$')
+ax.set_ylabel('$y$')
+ax.set_title('2D Contour Plot of Diffused Field')
+
+def update(frame):
+    global u, un, tolerance
+
+    un = u.copy()
+    u = diffuse(u)
+
+    ax.clear()
+    contour = ax.contourf(X, Y, u, alpha=0.75, cmap=cm.viridis) # Intital Contour Plot
+    ax.set_xlabel('$x$')
+    ax.set_ylabel('$y$')
+    ax.set_title(f'2D Contour Plot of Diffused Field (Frame{frame})')
+
+    diff = np.linalg.norm(u-un)
+    if diff<tolerance:
+        ani.event_source.stop()
+    return ax.collections
+
+# create the animation
+ani = FuncAnimation(fig, update, frames=500, interval = 100, blit=False)
+plt.show()
+# HTML(ani.to_jshtml())
