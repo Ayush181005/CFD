@@ -2,7 +2,7 @@
 
 Basic CFD codes for learning in the folder Basics, as learnt from "12 Steps to Navier-Stokes" by Barba group with my own learnings. Also, a few additional problems to consider with FDM and FVM discretization. 
 
-My CFD notes can be accessed at: https://www.theayush.in/CFD.pdf
+Handwritten CFD notes discretizing equantions starting from 1D convection all the way to the Navier-Stokes using FDM can be accessed at: https://www.theayush.in/docs/CFD.pdf
 
 It contains
 - Python codes for different problems (FDM & FVM)
